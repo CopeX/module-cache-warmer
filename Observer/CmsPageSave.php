@@ -17,7 +17,7 @@ use Magenest\CacheWarmer\Model\Queue;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\UrlRewrite\Model\ResourceModel\UrlRewriteCollectionFactory;
-use Psr\Log\LoggerInterface;
+use Magenest\CacheWarmer\Logger\Logger;
 
 class CmsPageSave implements ObserverInterface
 {
@@ -30,7 +30,7 @@ class CmsPageSave implements ObserverInterface
         UrlRewriteCollectionFactory $urlRewriteCollectionFactory,
         Queue $queue,
         Config $config,
-        LoggerInterface $logger
+        Logger $logger
     )
     {
         $this->urlCollection = $urlRewriteCollectionFactory;

@@ -65,6 +65,10 @@ class Queue extends \Magento\Framework\Model\AbstractModel
      * @var ResourceConnection
      */
     protected $resourceConnection;
+    /**
+     * @var \Magenest\CacheWarmer\Logger\Logger
+     */
+    private $logger;
 
     /**
      * Queue constructor.
@@ -82,6 +86,7 @@ class Queue extends \Magento\Framework\Model\AbstractModel
      * @param AbstractResource|null $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
      * @param array $data
+     * @param \Magenest\CacheWarmer\Logger\Logger $logger
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -97,7 +102,8 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         ResourceConnection $resourceConnection,
         AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        array $data = [],
+        \Magenest\CacheWarmer\Logger\Logger $logger
     )
     {
         $this->resourceConnection = $resourceConnection;
@@ -109,6 +115,7 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         $this->parallelCurl = $parallelCurl;
         $this->queueCollectionFactory = $queueCollectionFactory;
         $this->config = $config;
+        $this->logger = $logger;
         parent::__construct($context, $registry, $resource,
             $resourceCollection, $data);
     }
@@ -262,13 +269,24 @@ class Queue extends \Magento\Framework\Model\AbstractModel
             } else {
                 $pageSize = self::PAGE_SIZE;
             }
+
             do {
                 $sql = "SELECT `url` FROM " .$queueTable. " LIMIT ".$pageSize. " OFFSET ".$offset;
                 $data = $connection->fetchAll($sql);
+
+                foreach($data as $k => $d) {
+                    $data[$k]['url'] = str_replace('https://web-wru-cpieroni.dev.macron.com/', 'https://store.wru.co.uk/', $d['url']);
+                }
+
                 if (!empty($data)) {
                     $result = $this->parallelCurl->sendMultipleCurl($data, $maxRequests);
+
+                    foreach($result as $r) {
+                        $this->logger->info(json_encode($r));
+                    }
+
                     for ($d = 0; $d < count($result); $d++) {
-                        if ($result[$d] == ParallelCurl::OK) {
+                        if ($result[$d]['http_code'] == ParallelCurl::OK) {
                              if (isset($data[$d])) {
                                 $this->queueRepository->delete($data[$d]);
                             }

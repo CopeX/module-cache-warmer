@@ -17,20 +17,39 @@ use Magenest\CacheWarmer\Model\Queue;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\UrlRewrite\Model\ResourceModel\UrlRewriteCollectionFactory;
-use Psr\Log\LoggerInterface;
+use Magenest\CacheWarmer\Logger\Logger;
 
 class CatalogSave implements ObserverInterface
 {
+    /**
+     * @var UrlRewriteCollectionFactory
+     */
     protected $urlCollection;
+    /**
+     * @var Queue
+     */
     protected $queue;
+    /**
+     * @var Config
+     */
     protected $config;
+    /**
+     * @var Logger
+     */
     protected $logger;
 
+    /**
+     * CatalogSave constructor.
+     * @param UrlRewriteCollectionFactory $urlRewriteCollectionFactory
+     * @param Queue $queue
+     * @param Config $config
+     * @param Logger $logger
+     */
     public function __construct(
         UrlRewriteCollectionFactory $urlRewriteCollectionFactory,
         Queue $queue,
         Config $config,
-        LoggerInterface $logger
+        Logger $logger
     )
     {
         $this->urlCollection = $urlRewriteCollectionFactory;

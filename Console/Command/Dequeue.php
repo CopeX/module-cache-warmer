@@ -19,23 +19,37 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Psr\Log\LoggerInterface;
+use Magenest\CacheWarmer\Logger\Logger;
+use Magenest\CacheWarmer\Model\Lock;
 
 class Dequeue extends Command
 {
     protected $queue;
     protected $config;
     protected $logger;
+    /**
+     * @var Lock
+     */
+    private $lock;
 
+    /**
+     * Dequeue constructor.
+     * @param Queue $queue
+     * @param Config $config
+     * @param Lock $lock
+     * @param Logger $logger
+     */
     public function __construct(
         Queue $queue,
         Config $config,
-        LoggerInterface $logger
+        Lock $lock,
+        Logger $logger
     )
     {
         $this->logger = $logger;
         $this->config = $config;
         $this->queue = $queue;
+        $this->lock = $lock;
         parent::__construct();
     }
 
@@ -65,7 +79,17 @@ class Dequeue extends Command
             $batchSize = $this->queue->getQueueSize();
             $output->writeln(__("<info>Batch size: $batchSize </info>"));
             $this->logger->info(__('Batch size: %1', $batchSize));
-            list($result, $processedUrls, $missedUrls) = $this->queue->dequeue($batchSize);
+
+            $this->lock->lock();
+
+            try {
+                list($result, $processedUrls, $missedUrls) = $this->queue->dequeue($batchSize);
+            } catch (\Exception $e) {
+                $this->logger->info($e->getMessage());
+            }
+
+            $this->lock->unlock();
+
             $endTime = microtime(true);
             if ($result) {
                 $output->writeln(__('<info>A total of %1 record(s) were cache hit.</info>', $processedUrls));
@@ -84,6 +108,7 @@ class Dequeue extends Command
                 $output->writeln(__('<error>' . $missedUrls . '</error>'));
                 $this->logger->info(__($missedUrls));
             }
+
         } else {
             $output->writeln(__('<info>Magenest Cache Warmer is currently disabled!</info>'));
             $output->writeln(__('<info>Please enable the extension in Store Configuration.</info>'));

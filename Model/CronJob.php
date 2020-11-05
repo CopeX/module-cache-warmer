@@ -13,7 +13,7 @@
 namespace Magenest\CacheWarmer\Model;
 
 use Magenest\CacheWarmer\Helper\Config;
-use Psr\Log\LoggerInterface;
+use Magenest\CacheWarmer\Logger\Logger;
 use Magento\Framework\App\CacheInterface;
 
 class CronJob
@@ -27,7 +27,7 @@ class CronJob
      */
     private $config;
     /**
-     * @var LoggerInterface
+     * @var Logger
      */
     private $logger;
     /**
@@ -39,7 +39,7 @@ class CronJob
         Queue $queue,
         Config $config,
         CacheInterface $cache,
-        LoggerInterface $logger
+        Logger $logger
     )
     {
         $this->_cache = $cache;

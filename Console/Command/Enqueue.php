@@ -19,18 +19,33 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Psr\Log\LoggerInterface;
+use Magenest\CacheWarmer\Logger\Logger;
 
 class Enqueue extends Command
 {
+    /**
+     * @var Queue
+     */
     protected $queue;
+    /**
+     * @var Config
+     */
     protected $config;
+    /**
+     * @var Logger
+     */
     protected $logger;
 
+    /**
+     * Enqueue constructor.
+     * @param Queue $queue
+     * @param Config $config
+     * @param Logger $logger
+     */
     public function __construct(
         Queue $queue,
         Config $config,
-        LoggerInterface $logger
+        Logger $logger
     )
     {
         $this->logger = $logger;

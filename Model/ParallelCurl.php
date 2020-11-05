@@ -85,9 +85,26 @@ class ParallelCurl implements ParallelCurlInterface
 
     function onRequestDone($content, $url, $ch, $user_data)
     {
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $this->results[] = $httpcode;
+        $info = curl_getinfo($ch);
+        $headers = get_headers($info['url']);
+        $this->results[] = [
+            'url' => $info['url'],
+            'http_code' =>  $info['http_code'],
+            'redirect_count' => $info['redirect_count'],
+            'total_time' => $info['total_time'],
+            'age' => $this->getHeaderAge($headers)
+        ];
         return $this->results;
+    }
+
+    private function getHeaderAge($headers) {
+        $prefix = 'Age: ';
+        $keyNumber = key(preg_grep("/\b$prefix\b/i", $headers));
+        if(empty($keyNumber)) {
+            return 'Not found';
+        }
+
+        return (int) str_replace($prefix, '', $headers[$keyNumber]);
     }
 
     public function finishAllRequests()

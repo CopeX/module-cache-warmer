@@ -16,7 +16,7 @@ use Magenest\CacheWarmer\Helper\Config;
 use Magenest\CacheWarmer\Model\Queue;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Psr\Log\LoggerInterface;
+use Magenest\CacheWarmer\Logger\Logger;
 
 class CacheFlush implements ObserverInterface
 {
@@ -26,12 +26,12 @@ class CacheFlush implements ObserverInterface
 
     /**
      * CacheFlush constructor.
-     * @param LoggerInterface $logger
+     * @param Logger $logger
      * @param Queue $queue
      * @param Config $config
      */
     public function __construct(
-        LoggerInterface $logger,
+        Logger $logger,
         Queue $queue,
         Config $config
     )
