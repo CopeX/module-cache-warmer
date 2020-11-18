@@ -274,10 +274,6 @@ class Queue extends \Magento\Framework\Model\AbstractModel
                 $sql = "SELECT `url` FROM " .$queueTable. " LIMIT ".$pageSize. " OFFSET ".$offset;
                 $data = $connection->fetchAll($sql);
 
-                foreach($data as $k => $d) {
-                    $data[$k]['url'] = str_replace('https://web-wru-cpieroni.dev.macron.com/', 'https://store.wru.co.uk/', $d['url']);
-                }
-
                 if (!empty($data)) {
                     $result = $this->parallelCurl->sendMultipleCurl($data, $maxRequests);
 
