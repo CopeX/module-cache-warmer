@@ -12,61 +12,65 @@
 
 namespace Magenest\CacheWarmer\Helper;
 
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Helper\Context;
 
-class Config extends AbstractHelper
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
+
+class Config
 {
     const GENERAL = 'magenest_cachewarmer/general/';
     const PERFORMANCE = 'magenest_cachewarmer/performance_settings/';
 
-    public function __construct(Context $context)
+    private ScopeConfigInterface $scopeConfig;
+
+    public function __construct(ScopeConfigInterface $scopeConfig)
     {
-        parent::__construct($context);
+        $this->scopeConfig = $scopeConfig;
     }
 
-    public function isModuleEnabled()
+    public function isModuleEnabled($storeId = null)
     {
-        return $this->scopeConfig->getValue(self::GENERAL . 'enabled');
+        return $this->scopeConfig->getValue(self::GENERAL . 'enabled', ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function isGenerateProductSaveEnabled()
+    public function isGenerateProductSaveEnabled($storeId = null)
     {
-        return $this->scopeConfig->getValue(self::GENERAL . 'auto_update');
+        return $this->scopeConfig->getValue(self::GENERAL . 'auto_update', ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function isHitProductSaveEnabled()
+    public function isHitProductSaveEnabled($storeId = null)
     {
-        return $this->scopeConfig->getValue(self::GENERAL . 'auto_hit');
+        return $this->scopeConfig->getValue(self::GENERAL . 'auto_hit', ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function isCacheFlushEnabled()
+    public function isCacheFlushEnabled($storeId = null)
     {
-        return $this->scopeConfig->getValue(self::GENERAL . 'auto_flush');
+        return $this->scopeConfig->getValue(self::GENERAL . 'auto_flush', ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function getAdditionalUrls()
+    public function getAdditionalUrls($storeId = null)
     {
-        return $this->scopeConfig->getValue(self::GENERAL . 'custom_urls');
+        return $this->scopeConfig->getValue(self::GENERAL . 'custom_urls', ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function isScheduleEnabled()
+    public function isScheduleEnabled($storeId = null)
     {
-        return $this->scopeConfig->getValue(self::PERFORMANCE . 'enable_schedule');
+        return $this->scopeConfig->getValue(self::PERFORMANCE . 'enable_schedule', ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function getMaxRequests()
+    public function getMaxRequests($storeId = null)
     {
-        return $this->scopeConfig->getValue(self::PERFORMANCE . 'max_requests');
+        return $this->scopeConfig->getValue(self::PERFORMANCE . 'max_requests', ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function getScheduledBatchSize()
+    public function getScheduledBatchSize($storeId = null)
     {
-        return $this->scopeConfig->getValue(self::PERFORMANCE . 'scheduled_batch_size');
+        return $this->scopeConfig->getValue(self::PERFORMANCE . 'scheduled_batch_size', ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function isAddStoreCodeToUrlsEnabled()
+    public function isAddStoreCodeToUrlsEnabled($storeId = null)
     {
-        return $this->scopeConfig->getValue('web/url/use_store');
+        return $this->scopeConfig->getValue('web/url/use_store', ScopeInterface::SCOPE_STORE, $storeId);
     }
 }

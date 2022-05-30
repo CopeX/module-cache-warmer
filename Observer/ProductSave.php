@@ -51,13 +51,17 @@ class ProductSave implements ObserverInterface
             $productId = $observer->getProduct()->getEntityId();
             $categoryIds = $observer->getProduct()->getCategoryIds();
             $categoryUrls = array();
-            $baseUrl = $this->queue->getBaseUrl();
             foreach ($categoryIds as $categoryId) {
                 $categoryUrls = array_merge($categoryUrls, $this->urlCollection->create()->addFieldToFilter('entity_type', 'category')->addFieldToFilter('entity_id', $categoryId)->getData());
             }
             $productUrls = $this->urlCollection->create()->addFieldToFilter('entity_type', 'product')->addFieldToFilter('entity_id', $productId)->getData();
             $urlCollection = array_merge($categoryUrls, $productUrls);
             foreach ($urlCollection as $url) {
+                $storeId = $url['store_id'] ?? null;
+                $baseUrl = $this->queue->getBaseUrl($storeId);
+                if ($this->config->isAddStoreCodeToUrlsEnabled($storeId)) {
+                    $baseUrl = $baseUrl . $this->queue->getStore($storeId)->getCode() . '/';
+                }
                 $item = $baseUrl . $url['request_path'];
                 if ($this->config->isGenerateProductSaveEnabled()) {
                     $this->queue->customEnqueue($item);

@@ -154,9 +154,19 @@ class Queue extends \Magento\Framework\Model\AbstractModel
      * @return mixed
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getBaseUrl()
+    public function getBaseUrl($storeId = null)
     {
-        return $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        return $this->_storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+    }
+
+    /**
+     * @param $storeId
+     * @return \Magento\Store\Api\Data\StoreInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getStore($storeId = null)
+    {
+        return $this->_storeManager->getStore($storeId);
     }
 
     /**

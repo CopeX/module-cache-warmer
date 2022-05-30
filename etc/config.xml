@@ -8,11 +8,11 @@
                 <auto_hit>0</auto_hit>
             </general>
             <performance_settings>
-                <max_requests>4</max_requests>
+                <max_requests>2</max_requests>
                 <enable_schedule>0</enable_schedule>
-                <enqueue_schedule>05 1 * * *</enqueue_schedule>
-                <dequeue_schedule>05 2 * * *</dequeue_schedule>
-                <scheduled_batch_size>320</scheduled_batch_size>
+                <enqueue_schedule></enqueue_schedule>
+                <dequeue_schedule>* * * * *</dequeue_schedule>
+                <scheduled_batch_size>50</scheduled_batch_size>
             </performance_settings>
         </magenest_cachewarmer>
     </default>
