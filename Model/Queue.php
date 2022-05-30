@@ -292,10 +292,10 @@ class Queue extends \Magento\Framework\Model\AbstractModel
                     }
 
                     for ($d = 0; $d < count($result); $d++) {
+                        if (isset($data[$d])) {
+                            $this->queueRepository->delete($data[$d]);
+                        }
                         if ($result[$d]['http_code'] == ParallelCurl::OK) {
-                             if (isset($data[$d])) {
-                                $this->queueRepository->delete($data[$d]);
-                            }
                             $processedUrls++;
                             if ($processedUrls >= $batchSize) {
                                 break 2;
