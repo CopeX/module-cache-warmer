@@ -2,10 +2,8 @@
 /**
  * Copyright © 2019 Magenest. All rights reserved.
  * See COPYING.txt for license details.
- *
  * Magenest_CacheWarmer extension
  * NOTICE OF LICENSE
- *
  * @category Magenest
  * @package Magenest_CacheWarmer
  */
@@ -72,21 +70,21 @@ class Queue extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Queue constructor.
-     * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param UrlRewriteCollectionFactory $urlRewriteCollectionFactory
-     * @param QueueFactory $queueFactory
+     * @param \Magento\Framework\Model\Context                        $context
+     * @param \Magento\Framework\Registry                             $registry
+     * @param \Magento\Store\Model\StoreManagerInterface              $storeManager
+     * @param UrlRewriteCollectionFactory                             $urlRewriteCollectionFactory
+     * @param QueueFactory                                            $queueFactory
      * @param \Magenest\CacheWarmer\Api\Data\QueueRepositoryInterface $queueRepository
-     * @param \Magenest\CacheWarmer\Api\ParallelCurlInterface $parallelCurl
-     * @param ResourceModel\Queue\CollectionFactory $queueCollectionFactory
-     * @param Config $config
-     * @param CacheInterface $cache
-     * @param ResourceConnection $resourceConnection
-     * @param AbstractResource|null $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
-     * @param array $data
-     * @param \Magenest\CacheWarmer\Logger\Logger $logger
+     * @param \Magenest\CacheWarmer\Api\ParallelCurlInterface         $parallelCurl
+     * @param ResourceModel\Queue\CollectionFactory                   $queueCollectionFactory
+     * @param Config                                                  $config
+     * @param CacheInterface                                          $cache
+     * @param ResourceConnection                                      $resourceConnection
+     * @param AbstractResource|null                                   $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb|null      $resourceCollection
+     * @param array                                                   $data
+     * @param \Magenest\CacheWarmer\Logger\Logger                     $logger
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -104,8 +102,7 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = [],
         \Magenest\CacheWarmer\Logger\Logger $logger
-    )
-    {
+    ) {
         $this->resourceConnection = $resourceConnection;
         $this->_cache = $cache;
         $this->_storeManager = $storeManager;
@@ -178,8 +175,8 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         $additionalUrlsString = '';
         if (!empty($additionalUrlsConfig)) {
             $additionalUrlsArray = explode("\r\n", $additionalUrlsConfig);
-            foreach($additionalUrlsArray as $additionalUrl){
-                $additionalUrlsString .= "('".$additionalUrl."'),";
+            foreach ($additionalUrlsArray as $additionalUrl) {
+                $additionalUrlsString .= "('" . $additionalUrl . "'),";
             }
             $additionalUrlsString = rtrim($additionalUrlsString, ", ");
         }
@@ -216,26 +213,29 @@ class Queue extends \Magento\Framework\Model\AbstractModel
             } catch (\Exception $e) {
                 return [false, $generatedUrls];
             }
-            $connection  = $this->resourceConnection->getConnection();
+            $connection = $this->resourceConnection->getConnection();
             $collection = $this->queueCollectionFactory->create();
             $urlRewriteTable = $collection->getTable('url_rewrite');
             $queueTable = $collection->getTable(InstallSchema::TABLE_NAME);
-            if(!empty($additionalUrls)) {
+            if (!empty($additionalUrls)) {
                 $sql = "INSERT INTO " . $queueTable . " (url) VALUES " . $additionalUrls;
                 $result = $connection->query($sql);
                 $generatedUrls += $result->rowCount();
             }
 
-            if($this->config->isAddStoreCodeToUrlsEnabled()) {
+            if ($this->config->isAddStoreCodeToUrlsEnabled()) {
                 $stores = $this->_storeManager->getStores(false, true);
-                foreach($stores as $storeCode => $store) {
+                foreach ($stores as $storeCode => $store) {
                     $storeBaseUrl = $baseUrl . $storeCode . '/';
-                    $sql = "INSERT INTO " .$queueTable. " (url) SELECT CONCAT ('" .$storeBaseUrl. "', request_path) FROM " .$urlRewriteTable. " WHERE `redirect_type` = 0 GROUP BY `request_path`";
+                    $sql = "INSERT INTO " . $queueTable . " (url) SELECT CONCAT ('" . $storeBaseUrl .
+                           "', request_path) FROM " . $urlRewriteTable .
+                           " WHERE `redirect_type` = 0 GROUP BY `request_path`";
                     $result = $connection->query($sql);
                     $generatedUrls += $result->rowCount();
                 }
             } else {
-                $sql = "INSERT INTO " .$queueTable. " (url) SELECT CONCAT ('" .$baseUrl. "', request_path) FROM " .$urlRewriteTable. " WHERE `redirect_type` = 0 GROUP BY `request_path`";
+                $sql = "INSERT INTO " . $queueTable . " (url) SELECT CONCAT ('" . $baseUrl . "', request_path) FROM " .
+                       $urlRewriteTable . " WHERE `redirect_type` = 0 GROUP BY `request_path`";
                 $result = $connection->query($sql);
                 $generatedUrls += $result->rowCount();
             }
@@ -268,10 +268,10 @@ class Queue extends \Magento\Framework\Model\AbstractModel
             $processedUrls = 0;
             $offset = 0;
             $maxRequests = $this->config->getMaxRequests();
-            $connection  = $this->resourceConnection->getConnection();
+            $connection = $this->resourceConnection->getConnection();
             $collection = $this->queueCollectionFactory->create();
             $queueTable = $collection->getTable(InstallSchema::TABLE_NAME);
-            if (empty($batchSize)){
+            if (empty($batchSize)) {
                 $batchSize = $this->getQueueSize();
             }
             if ($batchSize < self::PAGE_SIZE) {
@@ -281,13 +281,13 @@ class Queue extends \Magento\Framework\Model\AbstractModel
             }
 
             do {
-                $sql = "SELECT `url` FROM " .$queueTable. " LIMIT ".$pageSize. " OFFSET ".$offset;
+                $sql = "SELECT `url` FROM " . $queueTable . " LIMIT " . $pageSize . " OFFSET " . $offset;
                 $data = $connection->fetchAll($sql);
 
                 if (!empty($data)) {
                     $result = $this->parallelCurl->sendMultipleCurl($data, $maxRequests);
 
-                    foreach($result as $r) {
+                    foreach ($result as $r) {
                         $this->logger->info(json_encode($r));
                     }
 
@@ -305,6 +305,8 @@ class Queue extends \Magento\Framework\Model\AbstractModel
                             $offset++;
                         }
                     }
+                } else {
+                    $this->setStopFlag();
                 }
             } while ($processedUrls <= $batchSize && !$this->getStopFlag());
         } catch (\Exception $e) {
