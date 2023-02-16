@@ -4,9 +4,7 @@ namespace Magenest\CacheWarmer\Model\ResourceModel\Queue;
 /**
  * Subscription Collection
  */
-class Collection extends
-    \Magento\Framework\Model\ResourceModel\Db\Collection\
-    AbstractCollection
+class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
      * Initialize resource collection
