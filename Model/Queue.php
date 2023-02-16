@@ -98,10 +98,10 @@ class Queue extends \Magento\Framework\Model\AbstractModel
         Config $config,
         CacheInterface $cache,
         ResourceConnection $resourceConnection,
+        \Magenest\CacheWarmer\Logger\Logger $logger,
         AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = [],
-        \Magenest\CacheWarmer\Logger\Logger $logger
+        array $data = []
     ) {
         $this->resourceConnection = $resourceConnection;
         $this->_cache = $cache;
